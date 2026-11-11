@@ -1,0 +1,40 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create release folder
+        run: |
+          mkdir -p release/tss-westvinebillboards
+
+          cp -r audio release/tss-westvinebillboards/
+          cp -r escrowed release/tss-westvinebillboards/
+          cp -r stream release/tss-westvinebillboards/
+
+          cp B3B06BED_game.dat151.rel release/tss-westvinebillboards/
+          cp fxmanifest.lua release/tss-westvinebillboards/
+
+      - name: Create ZIP
+        run: |
+          cd release
+          zip -r "../tss-westvinebillboards-${{ github.ref_name }}.zip" tss-westvinebillboards
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: tss-westvinebillboards-${{ github.ref_name }}.zip
+          generate_release_notes: true
